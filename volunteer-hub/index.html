@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Volunteer Hub · Riverside Food Pantry</title>
+  <meta name="description" content="Sign up for volunteer shifts, track service hours, and see live volunteer totals for the Riverside Food Pantry.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- ================= SIGN UP / LOG IN ================= -->
+<div id="auth-screen" class="auth">
+  <section class="auth-hero">
+    <img class="photo-bg" src="assets/volunteers.webp" alt="" aria-hidden="true">
+    <div class="photo-tint" aria-hidden="true"></div>
+    <div class="brand">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#E07A2E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10z"/></svg>
+      Volunteer Hub
+    </div>
+    <div>
+      <p class="eyebrow">Riverside Food Pantry</p>
+      <h1>Give a few hours. Feed a neighborhood.</h1>
+      <p class="lede">Sign up once, then pick shifts, track your hours, and see the difference volunteers are making in real time.</p>
+    </div>
+    <p class="fine">Your information is only shared with pantry coordinators.</p>
+  </section>
+
+  <section class="auth-panel">
+    <form id="auth-form" class="auth-form card" novalidate aria-labelledby="auth-title">
+      <div class="tabs" role="tablist" aria-label="Account">
+        <button type="button" role="tab" id="tab-signup" aria-selected="true">Sign up</button>
+        <button type="button" role="tab" id="tab-login" aria-selected="false">Log in</button>
+      </div>
+      <h2 id="auth-title">Create your volunteer account</h2>
+
+      <div class="field" id="name-field">
+        <label for="a-name">Full name</label>
+        <input id="a-name" name="name" autocomplete="name" aria-describedby="a-name-err">
+        <p class="error" id="a-name-err" role="alert"></p>
+      </div>
+
+      <div class="field">
+        <label for="a-email">Email</label>
+        <input id="a-email" name="email" type="email" autocomplete="email" aria-describedby="a-email-err">
+        <p class="error" id="a-email-err" role="alert"></p>
+      </div>
+
+      <div class="field">
+        <label for="a-pass">Password</label>
+        <input id="a-pass" name="password" type="password" autocomplete="new-password" aria-describedby="a-pass-hint a-pass-err">
+        <p class="hint" id="a-pass-hint">At least 8 characters, including a number.</p>
+        <p class="error" id="a-pass-err" role="alert"></p>
+      </div>
+
+      <button type="submit" class="btn btn-primary" id="auth-submit">Create account</button>
+      <p class="hint" id="login-note" hidden style="text-align:center">Demo: any valid email and password works.</p>
+    </form>
+  </section>
+</div>
+
+<!-- ================= SIGNED-IN APP ================= -->
+<div id="app-screen" class="app" hidden>
+  <aside class="sidebar">
+    <div class="brand">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#E07A2E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10z"/></svg>
+      <div>Volunteer Hub<small>Riverside Food Pantry</small></div>
+    </div>
+    <nav aria-label="Main">
+      <button class="nav-btn" data-tab="home">Home</button>
+      <button class="nav-btn" data-tab="volunteers">Volunteers</button>
+      <button class="nav-btn" data-tab="log">Log hours</button>
+      <button class="nav-btn" data-tab="reports">Reports</button>
+      <button class="nav-btn" data-tab="help">Help &amp; Q&amp;A</button>
+    </nav>
+    <div class="sidebar-foot">
+      <span>Signed in as <strong id="user-name"></strong></span>
+      <button class="logout" id="logout">Log out</button>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+
+    <!-- HOME -->
+    <section class="view home" data-view="home" aria-label="Home">
+      <p class="welcome">Welcome, <strong id="first-name"></strong>, to the Riverside Food Pantry</p>
+
+      <section class="live" aria-labelledby="live-h">
+        <img class="photo-bg" src="assets/volunteers.webp" alt="" aria-hidden="true">
+        <div class="photo-tint" aria-hidden="true"></div>
+        <div class="live-inner">
+          <div class="live-label">
+            <span class="dot" aria-hidden="true"></span>
+            <h2 id="live-h">Live · Volunteers across all past events</h2>
+          </div>
+          <div class="live-number" aria-live="polite" aria-atomic="true"><span id="live-total">0</span></div>
+          <p class="live-sub">+<span id="live-gained">0</span> since you opened this page · updates automatically</p>
+        </div>
+        <div class="live-tiles" id="past-tiles"></div>
+      </section>
+
+      <section aria-labelledby="up-h" class="view">
+        <h2 id="up-h" class="section-title">Upcoming events</h2>
+        <div class="events" id="events"></div>
+      </section>
+
+      <section id="event-map" class="card map-card" aria-labelledby="map-h">
+        <div class="map-head">
+          <h2 id="map-h" class="section-title">Event map · Jacksonville, FL</h2>
+          <p class="hint">Tap a numbered pin to see the event.</p>
+        </div>
+        <div class="map" id="map">
+          <svg viewBox="0 0 800 520" role="img" aria-label="Simplified map of Jacksonville showing the St. Johns River, major highways, and the event locations">
+            <ellipse cx="600" cy="38" rx="110" ry="34" fill="#D6E8DC"/>
+            <ellipse cx="722" cy="140" rx="11" ry="26" fill="#D6E8DC"/>
+            <ellipse cx="216" cy="240" rx="16" ry="11" fill="#C8E0D0"/>
+            <ellipse cx="90" cy="420" rx="70" ry="40" fill="#E2EDE5"/>
+            <path d="M728 0 L734 100 L742 180 L752 280 L764 380 L778 520 L800 520 L800 0 Z" fill="#C4DDE6"/>
+            <path d="M214 520 C216 470 222 440 228 410 C236 370 244 340 238 300" fill="none" stroke="#C4DDE6" stroke-width="30" stroke-linecap="round"/>
+            <path d="M214 520 C216 470 222 440 228 410 C236 370 244 340 238 300 C234 270 236 248 250 234 C270 214 310 222 340 205 C372 186 400 120 450 100 C500 82 560 96 620 96 C670 96 700 98 740 96" fill="none" stroke="#C4DDE6" stroke-width="15" stroke-linecap="round"/>
+            <path d="M120 300 C110 180 200 80 330 60 C460 40 560 80 590 140 C620 220 600 330 520 400 C440 470 300 480 220 440 C150 400 125 360 120 300 Z" fill="none" stroke="#F2D3B3" stroke-width="5"/>
+            <path d="M254 0 L256 120 L258 210 L300 330 L360 430 L420 520" fill="none" stroke="#FFFFFF" stroke-width="6"/>
+            <path d="M0 255 L120 245 L256 214" fill="none" stroke="#FFFFFF" stroke-width="6"/>
+            <path d="M330 268 L750 282" fill="none" stroke="#FFFFFF" stroke-width="4"/>
+            <text x="520" y="80" font-size="13" font-style="italic" fill="#4C7A8C">St. Johns River</text>
+            <text x="196" y="380" font-size="12" font-style="italic" fill="#4C7A8C" transform="rotate(-80 196 380)">St. Johns River</text>
+            <text x="788" y="240" font-size="13" font-style="italic" fill="#4C7A8C" transform="rotate(84 788 240)">Atlantic Ocean</text>
+            <text x="286" y="192" font-size="12" font-weight="600" letter-spacing="1.5" fill="#5B6663">DOWNTOWN</text>
+            <text x="128" y="262" font-size="12" font-weight="600" letter-spacing="1.5" fill="#5B6663">RIVERSIDE</text>
+            <text x="420" y="214" font-size="12" font-weight="600" letter-spacing="1.5" fill="#5B6663">ARLINGTON</text>
+            <text x="290" y="500" font-size="12" font-weight="600" letter-spacing="1.5" fill="#5B6663">MANDARIN</text>
+            <text x="726" y="318" font-size="12" font-weight="600" letter-spacing="1.5" fill="#5B6663" text-anchor="end">JAX BEACH</text>
+            <text x="262" y="36" font-size="11" font-weight="700" fill="#8A9591">I-95</text>
+            <text x="30" y="242" font-size="11" font-weight="700" fill="#8A9591">I-10</text>
+            <text x="560" y="300" font-size="11" font-weight="700" fill="#C08A5A">I-295</text>
+            <text x="560" y="268" font-size="11" font-weight="600" fill="#8A9591">Beach Blvd</text>
+          </svg>
+          <!-- pins are added by js/app.js -->
+        </div>
+        <div class="map-detail" id="map-detail" aria-live="polite"></div>
+        <p class="fineprint">Simplified illustration, not to scale.</p>
+      </section>
+    </section>
+
+    <!-- VOLUNTEERS -->
+    <section class="view" data-view="volunteers" aria-labelledby="vol-h" hidden>
+      <div class="view-head">
+        <div>
+          <h1 id="vol-h">Volunteers</h1>
+          <p class="muted"><span id="vol-count">0</span> shown · filter by skill or search by name</p>
+        </div>
+      </div>
+      <div class="filters">
+        <label for="vol-search" class="sr-only">Search volunteers</label>
+        <input id="vol-search" type="search" placeholder="Search by name…">
+        <div class="chip-row" id="skill-chips" role="group" aria-label="Filter by skill"></div>
+      </div>
+      <div class="card table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Skills</th>
+              <th scope="col">Availability</th>
+              <th scope="col" style="text-align:right">Hours (YTD)</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody id="vol-rows"></tbody>
+        </table>
+        <p class="empty" id="vol-empty" hidden>No volunteers match. Try clearing the skill filter.</p>
+      </div>
+    </section>
+
+    <!-- LOG HOURS -->
+    <section class="view" data-view="log" hidden>
+      <form id="log-form" class="card log-form" novalidate aria-labelledby="log-h">
+        <div>
+          <h1 id="log-h">Log service hours</h1>
+          <p class="muted" style="font-size:14px; margin-top:4px">Checked for format and meaning before it's sent.</p>
+        </div>
+        <div class="field">
+          <label for="f-event">Event</label>
+          <select id="f-event" aria-describedby="f-event-err"></select>
+          <p class="error" id="f-event-err" role="alert"></p>
+        </div>
+        <div class="two-col">
+          <div class="field">
+            <label for="f-date">Date (MM/DD/YYYY)</label>
+            <input id="f-date" placeholder="10/17/2026" inputmode="numeric" aria-describedby="f-date-err">
+            <p class="error" id="f-date-err" role="alert"></p>
+          </div>
+          <div class="field">
+            <label for="f-hours">Hours</label>
+            <input id="f-hours" placeholder="2.5" inputmode="decimal" aria-describedby="f-hours-err">
+            <p class="error" id="f-hours-err" role="alert"></p>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit for approval</button>
+        <p class="hint">A coordinator checks every entry against the event's sign-in sheet before hours count toward your total.</p>
+        <p class="notice" id="log-notice" role="status" hidden></p>
+        <div class="subs" id="subs" hidden>
+          <h2>Your submissions</h2>
+          <div id="sub-rows"></div>
+        </div>
+      </form>
+    </section>
+
+    <!-- REPORTS -->
+    <section class="view" data-view="reports" hidden>
+      <div class="view-head">
+        <div>
+          <h1>Reports</h1>
+          <p class="muted">Build a report, then export it.</p>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap">
+          <button class="btn btn-secondary" id="export-csv">Export CSV</button>
+          <button class="btn btn-secondary" id="print-report">Print PDF</button>
+        </div>
+      </div>
+      <div class="card controls">
+        <div class="control-group">
+          <span id="group-label">Group by</span>
+          <div class="chip-row" id="group-chips" role="group" aria-labelledby="group-label"></div>
+        </div>
+        <div class="control-group">
+          <span id="metric-label">Metric</span>
+          <div class="chip-row" id="metric-chips" role="group" aria-labelledby="metric-label"></div>
+        </div>
+      </div>
+      <section class="card chart" aria-labelledby="chart-h">
+        <h2 id="chart-h"></h2>
+        <div class="bars" id="bars"></div>
+        <p class="insight"><strong>Insight:</strong> <span id="insight"></span></p>
+      </section>
+    </section>
+
+    <!-- HELP -->
+    <section class="view help" data-view="help" hidden>
+      <div>
+        <h1 style="font-size:28px; letter-spacing:-0.02em">Help &amp; Q&amp;A</h1>
+        <p class="muted" style="margin-top:4px">Ask a question in plain words, or pick a common one.</p>
+      </div>
+      <label for="ask" class="sr-only">Ask a question</label>
+      <input id="ask" placeholder="e.g. how do I export hours?">
+      <div id="faqs" class="view" style="gap:10px"></div>
+    </section>
+
+  </main>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
