@@ -1,0 +1,878 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Volunteer Hub · Riverside Food Pantry</title>
+<meta name="description" content="Volunteer sign-up, event map, hour logging and reports for the Riverside Food Pantry.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1C2321;
+  --muted: #4F5B58;
+  --muted-2: #5B6663;
+  --bg: #F4F5F2;
+  --card: #FFFFFF;
+  --line: #DDE2DE;
+  --line-soft: #EEF1EE;
+  --field: #B8C2BE;
+  --brand: #0F5F5B;
+  --brand-dark: #0A4441;
+  --brand-tint: #E6F2EF;
+  --night: #13302E;
+  --night-2: #24413E;
+  --night-line: #2A4A47;
+  --night-text: #C9D8D4;
+  --accent: #E07A2E;
+  --accent-dark: #A3470F;
+  --error: #B42318;
+  --water: #C4DDE6;
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --base: 15px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  font-size: var(--base);
+  color: var(--ink);
+  background: var(--bg);
+  line-height: 1.45;
+}
+button, input, select { font-family: inherit; font-size: inherit; }
+button { cursor: pointer; }
+a { color: var(--brand); }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+[hidden] { display: none !important; }
+h1, h2, h3 { margin: 0; letter-spacing: -0.01em; }
+p { margin: 0; }
+.mono { font-family: var(--mono); }
+
+/* ---------- Buttons & fields ---------- */
+.btn {
+  min-height: 44px; padding: 0 18px; border-radius: 8px; font-weight: 600;
+  border: 1px solid var(--brand); background: var(--brand); color: #fff;
+}
+.btn:hover { background: var(--brand-dark); }
+.btn-secondary { background: #fff; color: var(--brand); border-color: var(--field); }
+.btn-secondary:hover { background: var(--brand-tint); }
+.btn-joined { background: var(--brand-tint); color: var(--brand-dark); }
+.btn-joined:hover { background: #d5eae4; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-weight: 600; font-size: 14px; }
+.field input, .field select, .search {
+  min-height: 44px; padding: 0 12px; border: 1px solid var(--field); border-radius: 8px; background: #fff; width: 100%;
+}
+.field input[aria-invalid="true"] { border: 2px solid var(--error); }
+.hint { color: var(--muted-2); font-size: 13px; }
+.error { color: var(--error); font-size: 13px; }
+.pill {
+  min-height: 40px; padding: 0 14px; border-radius: 999px; font-size: 14px; font-weight: 600;
+  border: 1px solid var(--field); background: #fff; color: var(--ink);
+}
+.pill[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); color: #fff; }
+.badge { display: inline-block; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; }
+.badge-ok { background: var(--brand-tint); color: var(--brand-dark); }
+.badge-warn { background: #FFF1E3; color: #8A3A0C; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; }
+
+/* ---------- Auth screen ---------- */
+.auth { display: flex; flex-wrap: wrap; min-height: 100vh; }
+.auth-hero {
+  flex: 1 1 420px; position: relative; overflow: hidden; color: #E8EFEC; background: var(--night);
+  padding: 56px 48px; display: flex; flex-direction: column; justify-content: space-between; gap: 40px;
+}
+.photo-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%; }
+.photo-tint { position: absolute; inset: 0; background: rgba(15, 42, 38, 0.82); }
+.above { position: relative; }
+.brand { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 20px; }
+.eyebrow { color: var(--accent); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; font-size: 13px; margin-bottom: 12px; }
+.auth-hero h1 { font-size: clamp(32px, 4vw, 44px); line-height: 1.1; color: #fff; letter-spacing: -0.02em; }
+.auth-hero .lede { margin-top: 18px; color: var(--night-text); font-size: 17px; max-width: 460px; }
+.auth-panel { flex: 1 1 420px; display: flex; align-items: center; justify-content: center; padding: 48px 24px; }
+.auth-form {
+  width: 100%; max-width: 420px; background: #fff; border: 1px solid var(--line); border-radius: 16px;
+  padding: 32px; display: flex; flex-direction: column; gap: 18px;
+}
+.tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: var(--line-soft); padding: 4px; border-radius: 10px; }
+.tabs button { min-height: 40px; border: 0; border-radius: 8px; font-weight: 600; background: transparent; color: var(--muted); }
+.tabs button[aria-selected="true"] { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+
+/* ---------- App shell ---------- */
+.app { display: flex; flex-wrap: wrap; min-height: 100vh; }
+.sidebar {
+  flex: 1 1 220px; max-width: 260px; min-width: 200px; background: var(--night); color: #E8EFEC;
+  padding: 24px 16px; display: flex; flex-direction: column; gap: 6px;
+}
+.sidebar .brand { font-size: 18px; padding: 0 8px 20px; }
+.sidebar .brand small { display: block; font-size: 12px; font-weight: 400; color: #A9C2BD; }
+.nav-btn {
+  text-align: left; border: 0; border-radius: 8px; padding: 0 12px; min-height: 44px; font-weight: 500;
+  background: transparent; color: var(--night-text);
+}
+.nav-btn:hover { background: #1B3D3A; }
+.nav-btn[aria-current="page"] { background: var(--night-2); color: #fff; box-shadow: inset 3px 0 0 var(--accent); }
+.sidebar-foot { margin-top: auto; padding: 12px 8px 0; border-top: 1px solid var(--night-line); display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: #A9C2BD; }
+.sidebar-foot strong { color: #fff; }
+.logout { align-self: flex-start; background: transparent; color: #E8EFEC; border: 1px solid var(--night-line); border-radius: 8px; padding: 0 12px; min-height: 40px; }
+main { flex: 999 1 560px; min-width: 0; padding: 36px 40px 48px; }
+.view { display: flex; flex-direction: column; gap: 24px; }
+.page-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 12px; }
+.page-head h1 { font-size: 28px; letter-spacing: -0.02em; }
+.page-head p { margin-top: 4px; color: var(--muted); }
+
+/* ---------- Home ---------- */
+.home { max-width: 1040px; width: 100%; margin: 0 auto; gap: 32px; }
+.welcome { text-align: center; color: #3E4A47; font-size: 18px; }
+.live {
+  position: relative; overflow: hidden; border-radius: 20px; background: var(--night); color: #E8EFEC;
+  padding: 52px 32px 32px; text-align: center;
+}
+.live .photo-tint { background: rgba(15, 42, 38, 0.86); }
+.live-head { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.live-head h2 { font-size: 14px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #F2B98A; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); animation: livepulse 1.8s infinite; }
+.live-total { font-family: var(--mono); font-weight: 600; font-size: clamp(64px, 11vw, 128px); line-height: 1; color: #fff; letter-spacing: -0.03em; margin: 12px 0; }
+.live-total span { display: inline-block; }
+.live-total .bump { animation: bump 0.4s ease-out; }
+.live-sub { color: var(--night-text); }
+.past-grid { position: relative; margin-top: 32px; display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; text-align: left; }
+.past-tile { background: rgba(255,255,255,.07); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
+.past-tile .name { font-size: 13px; color: var(--night-text); }
+.past-tile .count { font-family: var(--mono); font-size: 20px; color: #fff; }
+.bar-track { height: 5px; background: var(--night-2); border-radius: 3px; overflow: hidden; }
+.bar-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width .4s; }
+.section-title { font-size: 22px; }
+.events-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; }
+.event {
+  background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 18px;
+  display: flex; flex-direction: column; gap: 10px; transition: box-shadow .2s;
+}
+.event.selected { box-shadow: 0 0 0 2px var(--brand); }
+.event-top { display: flex; align-items: center; gap: 10px; }
+.num { width: 26px; height: 26px; border-radius: 50%; background: var(--night); color: #fff; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+.event-date { font-size: 13px; font-weight: 600; color: var(--accent-dark); }
+.event h3 { font-size: 18px; }
+.event-meta { display: flex; flex-direction: column; gap: 2px; font-size: 14px; color: var(--muted); }
+.event-meta .where { font-weight: 600; color: var(--ink); }
+.event-actions { margin-top: auto; display: flex; flex-wrap: wrap; gap: 8px; }
+.event-actions .btn { flex: 1 1 100px; font-size: 14px; padding: 0 10px; }
+.map-card { padding: 20px; border-radius: 16px; display: flex; flex-direction: column; gap: 14px; }
+.map { position: relative; width: 100%; aspect-ratio: 800 / 520; border-radius: 12px; overflow: hidden; background: #EEF3EF; }
+.map svg { position: absolute; inset: 0; width: 100%; height: 100%; font-family: 'IBM Plex Sans', sans-serif; }
+.pin {
+  position: absolute; transform: translate(-50%, -50%); border-radius: 50%; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; border: 3px solid #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,.3); transition: all .2s;
+  width: 36px; height: 36px; font-size: 15px; background: var(--night); color: #fff; z-index: 1;
+}
+.pin[aria-pressed="true"] { width: 46px; height: 46px; font-size: 18px; background: var(--accent); z-index: 2; }
+.map-detail { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; background: #F2F7F4; border-radius: 10px; padding: 12px 14px; }
+.map-detail .num { width: 30px; height: 30px; background: var(--accent); }
+.map-detail .grow { flex: 1 1 260px; min-width: 0; }
+.map-detail .sub { font-size: 14px; color: var(--muted); }
+
+/* ---------- Tables, forms, reports, help ---------- */
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.toolbar .search { flex: 1 1 220px; width: auto; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 640px; font-size: 14px; }
+th { text-align: left; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+td { padding: 12px 16px; border-bottom: 1px solid var(--line-soft); }
+td.name { font-weight: 600; }
+td.dim { color: var(--muted); }
+.num-col { text-align: right; font-family: var(--mono); }
+.empty { padding: 24px; color: var(--muted); }
+.log-form { max-width: 560px; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+.two-col { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.notice { padding: 10px 12px; border-radius: 8px; font-size: 14px; background: #FFF4E5; color: #7A3E0A; }
+.subs { display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--line-soft); padding-top: 14px; }
+.sub-row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; font-size: 14px; }
+.filters { display: flex; flex-wrap: wrap; gap: 20px; padding: 16px; }
+.filter-group { display: flex; flex-direction: column; gap: 6px; }
+.filter-group > span { font-size: 13px; font-weight: 600; }
+.chart { padding: 20px; }
+.chart h2 { font-size: 17px; margin-bottom: 16px; }
+.chart-row { display: grid; grid-template-columns: minmax(120px, 180px) minmax(0, 1fr) 64px; gap: 12px; align-items: center; margin-bottom: 12px; }
+.chart-track { height: 22px; background: var(--line-soft); border-radius: 4px; overflow: hidden; }
+.chart-fill { height: 100%; background: var(--brand); border-radius: 4px; transition: width .3s; }
+.insight { margin-top: 18px; padding: 12px; background: #F7F8F6; border-radius: 8px; font-size: 14px; color: var(--muted); }
+.insight strong { color: var(--ink); }
+.faq-list { display: flex; flex-direction: column; gap: 10px; max-width: 760px; }
+.faq button { width: 100%; text-align: left; background: transparent; border: 0; padding: 14px 16px; font-weight: 600; min-height: 44px; }
+.faq p { padding: 0 16px 14px; color: var(--muted); font-size: 14px; }
+
+@keyframes livepulse { 0% { box-shadow: 0 0 0 0 rgba(224,122,46,.55); } 70% { box-shadow: 0 0 0 10px rgba(224,122,46,0); } 100% { box-shadow: 0 0 0 0 rgba(224,122,46,0); } }
+@keyframes bump { 0% { transform: translateY(6px); opacity: .3; } 100% { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+@media (max-width: 720px) {
+  .sidebar { max-width: none; flex-basis: 100%; }
+  main { padding: 24px 16px 40px; }
+  .auth-hero { padding: 40px 24px; }
+  .auth-form { padding: 24px; }
+  .two-col { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ================= SIGN UP / LOG IN ================= -->
+<div id="auth" class="auth">
+  <section class="auth-hero">
+    <img class="photo-bg" src="assets/volunteers.webp" alt="" aria-hidden="true">
+    <div class="photo-tint" aria-hidden="true"></div>
+    <div class="above brand">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#E07A2E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10z"/></svg>
+      Volunteer Hub
+    </div>
+    <div class="above">
+      <p class="eyebrow">Riverside Food Pantry</p>
+      <h1>Give a few hours. Feed a neighborhood.</h1>
+      <p class="lede">Sign up once, then pick shifts, track your hours, and see the difference volunteers are making in real time.</p>
+    </div>
+    <p class="above hint" style="color: var(--night-text)">Your information is only shared with pantry coordinators.</p>
+  </section>
+
+  <section class="auth-panel">
+    <form id="auth-form" class="auth-form" novalidate aria-labelledby="auth-title">
+      <div class="tabs" role="tablist" aria-label="Account">
+        <button type="button" role="tab" id="tab-signup" aria-selected="true">Sign up</button>
+        <button type="button" role="tab" id="tab-login" aria-selected="false">Log in</button>
+      </div>
+      <h2 id="auth-title" style="font-size: 24px">Create your volunteer account</h2>
+
+      <div class="field" id="name-field">
+        <label for="a-name">Full name</label>
+        <input id="a-name" autocomplete="name">
+        <p class="error" id="err-name" role="alert" hidden></p>
+      </div>
+      <div class="field">
+        <label for="a-email">Email</label>
+        <input id="a-email" type="email" autocomplete="email">
+        <p class="error" id="err-email" role="alert" hidden></p>
+      </div>
+      <div class="field">
+        <label for="a-pass">Password</label>
+        <input id="a-pass" type="password" autocomplete="new-password" aria-describedby="pass-hint">
+        <p class="hint" id="pass-hint">At least 8 characters, including a number.</p>
+        <p class="error" id="err-pass" role="alert" hidden></p>
+      </div>
+      <button type="submit" class="btn" id="auth-submit" style="min-height: 48px; font-size: 16px">Create account</button>
+      <p class="hint" id="login-hint" style="text-align: center" hidden>Demo: any valid email and password works.</p>
+    </form>
+  </section>
+</div>
+
+<!-- ================= SIGNED-IN APP ================= -->
+<div id="app" class="app" hidden>
+  <nav class="sidebar" aria-label="Main">
+    <div class="brand">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#E07A2E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10z"/></svg>
+      <div>Volunteer Hub<small>Riverside Food Pantry</small></div>
+    </div>
+    <button class="nav-btn" data-tab="home">Home</button>
+    <button class="nav-btn" data-tab="volunteers">Volunteers</button>
+    <button class="nav-btn" data-tab="log">Log hours</button>
+    <button class="nav-btn" data-tab="reports">Reports</button>
+    <button class="nav-btn" data-tab="help">Help &amp; Q&amp;A</button>
+    <div class="sidebar-foot">
+      <span>Signed in as <strong id="user-name"></strong></span>
+      <button class="logout" id="logout">Log out</button>
+    </div>
+  </nav>
+
+  <main>
+    <!-- HOME -->
+    <section class="view home" data-view="home">
+      <p class="welcome">Welcome, <strong id="first-name"></strong>, to the Riverside Food Pantry</p>
+
+      <section class="live" aria-labelledby="live-h">
+        <img class="photo-bg" src="assets/volunteers.webp" alt="" aria-hidden="true">
+        <div class="photo-tint" aria-hidden="true"></div>
+        <div class="above">
+          <div class="live-head">
+            <span class="dot" aria-hidden="true"></span>
+            <h2 id="live-h">Live · Volunteers across all past events</h2>
+          </div>
+          <div class="live-total" aria-live="polite" aria-atomic="true"><span id="live-total">0</span></div>
+          <p class="live-sub">+<span id="gained">0</span> since you opened this page · updates automatically</p>
+        </div>
+        <div class="past-grid" id="past-grid"></div>
+      </section>
+
+      <section aria-labelledby="up-h" style="display: flex; flex-direction: column; gap: 14px">
+        <h2 id="up-h" class="section-title">Upcoming events</h2>
+        <div class="events-grid" id="events"></div>
+      </section>
+
+      <section id="event-map" class="card map-card" aria-labelledby="map-h">
+        <div class="page-head" style="align-items: baseline">
+          <h2 id="map-h" class="section-title">Event map · Jacksonville, FL</h2>
+          <p class="hint">Tap a numbered pin to see the event.</p>
+        </div>
+        <div class="map">
+          <svg viewBox="0 0 800 520" role="img" aria-label="Simplified map of Jacksonville showing the St. Johns River, major highways, and the event locations">
+            <ellipse cx="600" cy="38" rx="110" ry="34" fill="#D6E8DC"/>
+            <ellipse cx="722" cy="140" rx="11" ry="26" fill="#D6E8DC"/>
+            <ellipse cx="216" cy="240" rx="16" ry="11" fill="#C8E0D0"/>
+            <ellipse cx="90" cy="420" rx="70" ry="40" fill="#E2EDE5"/>
+            <path d="M728 0 L734 100 L742 180 L752 280 L764 380 L778 520 L800 520 L800 0 Z" fill="#C4DDE6"/>
+            <path d="M214 520 C216 470 222 440 228 410 C236 370 244 340 238 300" fill="none" stroke="#C4DDE6" stroke-width="30" stroke-linecap="round"/>
+            <path d="M214 520 C216 470 222 440 228 410 C236 370 244 340 238 300 C234 270 236 248 250 234 C270 214 310 222 340 205 C372 186 400 120 450 100 C500 82 560 96 620 96 C670 96 700 98 740 96" fill="none" stroke="#C4DDE6" stroke-width="15" stroke-linecap="round"/>
+            <path d="M120 300 C110 180 200 80 330 60 C460 40 560 80 590 140 C620 220 600 330 520 400 C440 470 300 480 220 440 C150 400 125 360 120 300 Z" fill="none" stroke="#F2D3B3" stroke-width="5"/>
+            <path d="M254 0 L256 120 L258 210 L300 330 L360 430 L420 520" fill="none" stroke="#FFFFFF" stroke-width="6"/>
+            <path d="M0 255 L120 245 L256 214" fill="none" stroke="#FFFFFF" stroke-width="6"/>
+            <path d="M330 268 L750 282" fill="none" stroke="#FFFFFF" stroke-width="4"/>
+            <text x="520" y="80" font-size="13" font-style="italic" fill="#4C7A8C">St. Johns River</text>
+            <text x="196" y="380" font-size="12" font-style="italic" fill="#4C7A8C" transform="rotate(-80 196 380)">St. Johns River</text>
+            <text x="788" y="240" font-size="13" font-style="italic" fill="#4C7A8C" transform="rotate(84 788 240)">Atlantic Ocean</text>
+            <text x="286" y="192" font-size="12" font-weight="600" letter-spacing="1.5" fill="#5B6663">DOWNTOWN</text>
+            <text x="128" y="262" font-size="12" font-weight="600" letter-spacing="1.5" fill="#5B6663">RIVERSIDE</text>
+            <text x="420" y="214" font-size="12" font-weight="600" letter-spacing="1.5" fill="#5B6663">ARLINGTON</text>
+            <text x="290" y="500" font-size="12" font-weight="600" letter-spacing="1.5" fill="#5B6663">MANDARIN</text>
+            <text x="726" y="318" font-size="12" font-weight="600" letter-spacing="1.5" fill="#5B6663" text-anchor="end">JAX BEACH</text>
+            <text x="262" y="36" font-size="11" font-weight="700" fill="#8A9591">I-95</text>
+            <text x="30" y="242" font-size="11" font-weight="700" fill="#8A9591">I-10</text>
+            <text x="560" y="300" font-size="11" font-weight="700" fill="#C08A5A">I-295</text>
+            <text x="560" y="268" font-size="11" font-weight="600" fill="#8A9591">Beach Blvd</text>
+          </svg>
+          <div id="pins"></div>
+        </div>
+        <div class="map-detail" id="map-detail" aria-live="polite"></div>
+        <p class="hint" style="font-size: 12px">Simplified illustration, not to scale.</p>
+      </section>
+    </section>
+
+    <!-- VOLUNTEERS -->
+    <section class="view" data-view="volunteers" hidden>
+      <div class="page-head">
+        <div>
+          <h1>Volunteers</h1>
+          <p><span id="vol-count">0</span> shown · filter by skill or search by name</p>
+        </div>
+      </div>
+      <div class="toolbar">
+        <label for="vsearch" class="sr-only">Search volunteers</label>
+        <input id="vsearch" class="search" type="search" placeholder="Search by name…">
+        <div id="skill-chips" class="toolbar"></div>
+      </div>
+      <div class="card table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Skills</th>
+              <th scope="col">Availability</th>
+              <th scope="col" style="text-align: right">Hours (YTD)</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody id="vol-rows"></tbody>
+        </table>
+        <p class="empty" id="vol-empty" hidden>No volunteers match. Try clearing the skill filter.</p>
+      </div>
+    </section>
+
+    <!-- LOG HOURS -->
+    <section class="view" data-view="log" hidden>
+      <form id="log-form" class="card log-form" novalidate aria-labelledby="log-h">
+        <div>
+          <h1 id="log-h" style="font-size: 26px; letter-spacing: -0.02em">Log service hours</h1>
+          <p class="hint" style="margin-top: 4px; font-size: 14px">Checked for format and meaning before it's sent for review.</p>
+        </div>
+        <div class="field">
+          <label for="f-opp">Event</label>
+          <select id="f-opp"></select>
+          <p class="error" id="err-opp" role="alert" hidden></p>
+        </div>
+        <div class="two-col">
+          <div class="field">
+            <label for="f-date">Date (MM/DD/YYYY)</label>
+            <input id="f-date" inputmode="numeric" placeholder="10/11/2026">
+            <p class="error" id="err-date" role="alert" hidden></p>
+          </div>
+          <div class="field">
+            <label for="f-hrs">Hours</label>
+            <input id="f-hrs" inputmode="decimal" placeholder="2.5">
+            <p class="error" id="err-hours" role="alert" hidden></p>
+          </div>
+        </div>
+        <button type="submit" class="btn">Submit for approval</button>
+        <p class="hint">A coordinator checks every entry against the event's sign-in sheet before hours count toward your total.</p>
+        <p class="notice" id="log-notice" role="status" hidden></p>
+        <div class="subs" id="subs" hidden>
+          <h2 style="font-size: 15px">Your submissions</h2>
+          <div id="sub-rows" style="display: flex; flex-direction: column; gap: 8px"></div>
+        </div>
+      </form>
+    </section>
+
+    <!-- REPORTS -->
+    <section class="view" data-view="reports" hidden>
+      <div class="page-head">
+        <div>
+          <h1>Reports</h1>
+          <p>Build a report, then export it.</p>
+        </div>
+        <div class="toolbar">
+          <button class="btn btn-secondary" id="export-csv">Export CSV</button>
+          <button class="btn btn-secondary" id="print-report">Print PDF</button>
+        </div>
+      </div>
+      <div class="card filters">
+        <div class="filter-group"><span>Group by</span><div class="toolbar" id="group-chips"></div></div>
+        <div class="filter-group"><span>Metric</span><div class="toolbar" id="metric-chips"></div></div>
+      </div>
+      <section class="card chart" aria-labelledby="chart-title">
+        <h2 id="chart-title"></h2>
+        <div id="chart"></div>
+        <p class="insight"><strong>Insight:</strong> <span id="insight"></span></p>
+      </section>
+    </section>
+
+    <!-- HELP -->
+    <section class="view" data-view="help" hidden>
+      <div class="page-head">
+        <div>
+          <h1>Help &amp; Q&amp;A</h1>
+          <p>Ask a question in plain words, or pick a common one.</p>
+        </div>
+      </div>
+      <label for="ask" class="sr-only">Ask a question</label>
+      <input id="ask" class="search" placeholder="e.g. how do I export hours?" style="max-width: 760px">
+      <div class="faq-list" id="faqs"></div>
+    </section>
+  </main>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  /* ---------------- Sample data ---------------- */
+  const PAST_EVENTS = [
+    { name: 'Holiday Coat Drive', count: 412 },
+    { name: 'Summer Lunch Program', count: 538 },
+    { name: 'Spring Food Sort', count: 296 },
+    { name: 'Back-to-School Packs', count: 221 }
+  ];
+
+  // x/y are positions on the 800x520 map drawing.
+  const EVENTS = [
+    { name: 'Saturday Food Sort', date: 'Sat, Oct 17', time: '9:00 AM – 12:00 PM', where: 'Memorial Park', addr: '1620 Riverside Ave, Riverside', spots: 5, x: 216, y: 240 },
+    { name: 'Senior Grocery Delivery', date: 'Sun, Oct 18', time: '1:00 – 4:00 PM', where: 'Mandarin Senior Center', addr: '3848 Hartley Rd, Mandarin', spots: 1, x: 314, y: 462 },
+    { name: 'Youth Tutoring', date: 'Tue, Oct 20', time: '4:00 – 6:00 PM', where: 'Main Library, Downtown', addr: '303 N Laura St, Downtown', spots: 4, x: 258, y: 210 },
+    { name: 'Beach Food Drive', date: 'Sat, Oct 24', time: '8:00 – 11:00 AM', where: 'Jacksonville Beach Pier', addr: '503 1st St N, Jacksonville Beach', spots: 8, x: 744, y: 280 }
+  ];
+
+  const VOLUNTEERS = [
+    { name: 'Maya Okafor', skills: ['Driving', 'Spanish'], avail: 'Weekends', hours: 64, status: 'Active' },
+    { name: 'Daniel Reyes', skills: ['Lifting', 'Driving'], avail: 'Sat AM', hours: 41, status: 'Active' },
+    { name: 'Priya Shah', skills: ['Tutoring', 'Spanish'], avail: 'Weekdays PM', hours: 38, status: 'Active' },
+    { name: 'Tom Becker', skills: ['Lifting'], avail: 'Flexible', hours: 22, status: 'Onboarding' },
+    { name: 'Aisha Grant', skills: ['Tutoring'], avail: 'Tue/Thu', hours: 17, status: 'Active' }
+  ];
+  const SKILLS = ['All', 'Driving', 'Lifting', 'Tutoring', 'Spanish'];
+
+  // [label, hours, distinct volunteers]
+  const REPORT = {
+    Event: [['Saturday Food Sort', 142, 18], ['Senior Grocery Delivery', 96, 9], ['Youth Tutoring', 71, 6], ['Holiday Coat Drive', 33, 11]],
+    Month: [['July', 88, 21], ['August', 104, 24], ['September', 117, 27], ['October (so far)', 33, 15]],
+    Skill: [['Lifting', 121, 12], ['Driving', 109, 10], ['Tutoring', 71, 6], ['Spanish', 41, 8]]
+  };
+
+  const FAQ = [
+    ['How do I sign up for an event?', 'On Home, press Sign up on any upcoming event card. Press it again to cancel.'],
+    ['How do I log my hours?', 'Open Log hours, pick an event you joined, enter the date and hours, then press Submit for approval.'],
+    ['What is the live counter on Home?', 'It totals every volunteer who has served at past pantry events, and it updates as new check-ins come in.'],
+    ['How do I export hours for a grant report?', 'Open Reports, choose Group by and Metric, then Export CSV or Print PDF.'],
+    ['Why are my hours "Pending approval"?', 'A coordinator confirms each entry against the event sign-in sheet so totals stay accurate.']
+  ];
+
+  const TICK_MS = 3000;
+
+  /* ---------------- Saved state (browser only) ---------------- */
+  const store = {
+    get(key, fallback) {
+      try { const v = localStorage.getItem('vh_' + key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; }
+    },
+    set(key, value) {
+      try { localStorage.setItem('vh_' + key, JSON.stringify(value)); } catch (e) { /* storage unavailable */ }
+    },
+    remove(key) {
+      try { localStorage.removeItem('vh_' + key); } catch (e) { /* storage unavailable */ }
+    }
+  };
+
+  const state = {
+    mode: 'signup',
+    user: store.get('user', null),
+    tab: 'home',
+    joined: store.get('joined', {}),
+    subs: store.get('subs', []),
+    selected: EVENTS[0].name,
+    live: PAST_EVENTS.reduce((t, e) => t + e.count, 0),
+    gained: 0,
+    bumps: PAST_EVENTS.map(() => 0),
+    skill: 'All',
+    group: 'Event',
+    metric: 'Hours',
+    openFaq: 0
+  };
+
+  /* ---------------- Helpers ---------------- */
+  const $ = (sel) => document.querySelector(sel);
+  const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  function showError(id, message) {
+    const el = document.getElementById('err-' + id);
+    const input = { name: '#a-name', email: '#a-email', pass: '#a-pass', date: '#f-date', hours: '#f-hrs', opp: '#f-opp' }[id];
+    el.textContent = message || '';
+    el.hidden = !message;
+    if (input) $(input).setAttribute('aria-invalid', message ? 'true' : 'false');
+  }
+
+  /* ---------------- Auth ---------------- */
+  function setMode(mode) {
+    state.mode = mode;
+    const signup = mode === 'signup';
+    $('#tab-signup').setAttribute('aria-selected', String(signup));
+    $('#tab-login').setAttribute('aria-selected', String(!signup));
+    $('#name-field').hidden = !signup;
+    $('#auth-title').textContent = signup ? 'Create your volunteer account' : 'Welcome back';
+    $('#auth-submit').textContent = signup ? 'Create account' : 'Log in';
+    $('#login-hint').hidden = signup;
+    $('#a-pass').setAttribute('autocomplete', signup ? 'new-password' : 'current-password');
+    ['name', 'email', 'pass'].forEach((k) => showError(k, ''));
+  }
+
+  function validateAuth(name, email, pass, mode) {
+    const err = {};
+    if (mode === 'signup') {
+      if (!name) err.name = 'Enter your name so we know who’s helping.';
+      else if (!/^[A-Za-zÀ-ɏ' .-]{2,60}$/.test(name)) err.name = 'Use letters only (2–60 characters).';
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) err.email = 'Enter an email like name@example.com.';
+    if (mode === 'signup') {
+      if (pass.length < 8) err.pass = 'Password needs at least 8 characters.';
+      else if (!/\d/.test(pass)) err.pass = 'Add at least one number to your password.';
+    } else if (!pass) {
+      err.pass = 'Enter your password.';
+    }
+    return err;
+  }
+
+  function handleAuth(e) {
+    e.preventDefault();
+    const name = $('#a-name').value.trim();
+    const email = $('#a-email').value.trim();
+    const pass = $('#a-pass').value;
+    const err = validateAuth(name, email, pass, state.mode);
+    ['name', 'email', 'pass'].forEach((k) => showError(k, err[k]));
+    const firstBad = ['name', 'email', 'pass'].find((k) => err[k]);
+    if (firstBad) { $({ name: '#a-name', email: '#a-email', pass: '#a-pass' }[firstBad]).focus(); return; }
+
+    const displayName = state.mode === 'signup'
+      ? name
+      : email.split('@')[0].replace(/[._-]+/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+    // Demo only: a real app would send credentials to a server and never store passwords in the browser.
+    state.user = displayName;
+    store.set('user', displayName);
+    $('#auth-form').reset();
+    enterApp();
+  }
+
+  function enterApp() {
+    $('#auth').hidden = true;
+    $('#app').hidden = false;
+    $('#user-name').textContent = state.user;
+    $('#first-name').textContent = state.user.split(' ')[0];
+    state.gained = 0;
+    $('#gained').textContent = '0';
+    setTab('home');
+    startTicker();
+  }
+
+  function logout() {
+    store.remove('user');
+    state.user = null;
+    stopTicker();
+    $('#app').hidden = true;
+    $('#auth').hidden = false;
+    setMode('login');
+    $('#a-email').focus();
+  }
+
+  /* ---------------- Navigation ---------------- */
+  function setTab(tab) {
+    state.tab = tab;
+    $$('.nav-btn').forEach((b) => {
+      if (b.dataset.tab === tab) b.setAttribute('aria-current', 'page');
+      else b.removeAttribute('aria-current');
+    });
+    $$('.view').forEach((v) => { v.hidden = v.dataset.view !== tab; });
+    if (tab === 'home') renderHome();
+    if (tab === 'volunteers') renderVolunteers();
+    if (tab === 'log') renderLog();
+    if (tab === 'reports') renderReport();
+    if (tab === 'help') renderFaq();
+  }
+
+  /* ---------------- Home: live counter ---------------- */
+  let timer = null;
+  function startTicker() {
+    stopTicker();
+    timer = setInterval(() => {
+      const add = Math.random() < 0.75 ? 1 : 2;
+      const i = Math.floor(Math.random() * PAST_EVENTS.length);
+      state.bumps[i] += add;
+      state.live += add;
+      state.gained += add;
+      renderCounter(true);
+    }, TICK_MS);
+  }
+  function stopTicker() { if (timer) clearInterval(timer); timer = null; }
+
+  function renderCounter(animate) {
+    const el = $('#live-total');
+    el.textContent = state.live.toLocaleString('en-US');
+    if (animate) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+    $('#gained').textContent = state.gained;
+    const counts = PAST_EVENTS.map((e, i) => e.count + state.bumps[i]);
+    const max = Math.max(...counts);
+    $('#past-grid').innerHTML = PAST_EVENTS.map((e, i) => `
+      <div class="past-tile">
+        <span class="name">${esc(e.name)}</span>
+        <span class="count">${counts[i]}</span>
+        <div class="bar-track"><div class="bar-fill" style="width: ${Math.round(counts[i] / max * 100)}%"></div></div>
+      </div>`).join('');
+  }
+
+  /* ---------------- Home: events + map ---------------- */
+  function spotsLeft(ev) {
+    const n = ev.spots - (state.joined[ev.name] ? 1 : 0);
+    return n <= 0 ? 'Full' : n + (n === 1 ? ' spot left' : ' spots left');
+  }
+
+  function joinButton(ev) {
+    const on = !!state.joined[ev.name];
+    return `<button class="btn ${on ? 'btn-joined' : ''}" data-join="${esc(ev.name)}" aria-pressed="${on}">${on ? 'Signed up ✓' : 'Sign up'}</button>`;
+  }
+
+  function renderHome() {
+    renderCounter(false);
+
+    $('#events').innerHTML = EVENTS.map((ev, i) => `
+      <article class="event ${ev.name === state.selected ? 'selected' : ''}">
+        <div class="event-top"><span class="num" aria-hidden="true">${i + 1}</span><span class="event-date">${esc(ev.date)}</span></div>
+        <h3>${esc(ev.name)}</h3>
+        <div class="event-meta">
+          <span>${esc(ev.time)}</span>
+          <span class="where">${esc(ev.where)}</span>
+          <span>${esc(ev.addr)}</span>
+        </div>
+        <p class="hint" style="font-size: 14px; color: var(--muted)">${spotsLeft(ev)}</p>
+        <div class="event-actions">
+          ${joinButton(ev)}
+          <button class="btn btn-secondary" data-show="${esc(ev.name)}">Show on map</button>
+        </div>
+      </article>`).join('');
+
+    $('#pins').innerHTML = EVENTS.map((ev, i) => `
+      <button class="pin" data-show="${esc(ev.name)}" aria-pressed="${ev.name === state.selected}"
+        aria-label="Event ${i + 1}: ${esc(ev.name)} at ${esc(ev.where)}"
+        style="left: ${ev.x / 8}%; top: ${ev.y / 5.2}%">${i + 1}</button>`).join('');
+
+    const i = EVENTS.findIndex((e) => e.name === state.selected);
+    const ev = EVENTS[i];
+    $('#map-detail').innerHTML = ev ? `
+      <span class="num" aria-hidden="true">${i + 1}</span>
+      <div class="grow">
+        <div style="font-weight: 600">${esc(ev.name)} · ${esc(ev.where)}</div>
+        <div class="sub">${esc(ev.addr)} · ${esc(ev.date)}, ${esc(ev.time)}</div>
+      </div>
+      ${joinButton(ev)}` : '';
+  }
+
+  function toggleJoin(name) {
+    state.joined[name] = !state.joined[name];
+    store.set('joined', state.joined);
+    renderHome();
+  }
+
+  function showOnMap(name, scroll) {
+    state.selected = name;
+    renderHome();
+    if (scroll) $('#event-map').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  /* ---------------- Volunteers ---------------- */
+  function renderVolunteers() {
+    $('#skill-chips').innerHTML = SKILLS.map((k) =>
+      `<button class="pill" data-skill="${k}" aria-pressed="${state.skill === k}">${k}</button>`).join('');
+    const q = $('#vsearch').value.trim().toLowerCase();
+    const rows = VOLUNTEERS.filter((v) =>
+      (state.skill === 'All' || v.skills.includes(state.skill)) && v.name.toLowerCase().includes(q));
+    $('#vol-count').textContent = rows.length;
+    $('#vol-empty').hidden = rows.length > 0;
+    $('#vol-rows').innerHTML = rows.map((v) => `
+      <tr>
+        <td class="name">${esc(v.name)}</td>
+        <td class="dim">${esc(v.skills.join(', '))}</td>
+        <td class="dim">${esc(v.avail)}</td>
+        <td class="num-col">${v.hours}</td>
+        <td><span class="badge ${v.status === 'Active' ? 'badge-ok' : 'badge-warn'}">${esc(v.status)}</span></td>
+      </tr>`).join('');
+  }
+
+  /* ---------------- Log hours ---------------- */
+  function renderLog() {
+    const sel = $('#f-opp');
+    const current = sel.value;
+    sel.innerHTML = EVENTS.map((e) => `<option value="${esc(e.name)}">${esc(e.name)}</option>`).join('');
+    if (current) sel.value = current;
+    renderSubs();
+  }
+
+  function validateHours(opp, date, hours) {
+    const err = {};
+    // Syntactic check: MM/DD/YYYY
+    const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(date);
+    if (!m) {
+      err.date = 'Use MM/DD/YYYY, e.g. 10/11/2026.';
+    } else {
+      const d = new Date(+m[3], +m[1] - 1, +m[2]);
+      // Semantic checks: real calendar date, not in the future
+      if (d.getMonth() !== +m[1] - 1 || d.getDate() !== +m[2]) err.date = 'That date doesn’t exist — check the month and day.';
+      else if (d > new Date()) err.date = 'Hours can’t be logged for a future date.';
+    }
+    const h = Number(hours);
+    if (hours === '' || isNaN(h)) err.hours = 'Enter a number, like 2.5.';
+    else if (h < 0.5 || h > 12) err.hours = 'A single shift must be between 0.5 and 12 hours.';
+    // Semantic check: the volunteer must have signed up for this event
+    if (!state.joined[opp]) err.opp = 'You aren’t signed up for ' + opp + '. Join it on Home first.';
+    return err;
+  }
+
+  function handleLog(e) {
+    e.preventDefault();
+    const opp = $('#f-opp').value;
+    const date = $('#f-date').value.trim();
+    const hours = $('#f-hrs').value.trim();
+    const err = validateHours(opp, date, hours);
+    ['opp', 'date', 'hours'].forEach((k) => showError(k, err[k]));
+    const notice = $('#log-notice');
+    if (Object.keys(err).length) { notice.hidden = true; return; }
+    const text = hours + ' hrs · ' + opp + ' · ' + date;
+    state.subs.unshift({ text, status: 'Pending approval' });
+    store.set('subs', state.subs);
+    notice.textContent = 'Sent for review: ' + text + '. You’ll be notified once it’s approved.';
+    notice.hidden = false;
+    $('#f-date').value = '';
+    $('#f-hrs').value = '';
+    renderSubs();
+  }
+
+  function renderSubs() {
+    $('#subs').hidden = state.subs.length === 0;
+    $('#sub-rows').innerHTML = state.subs.map((s) => `
+      <div class="sub-row"><span>${esc(s.text)}</span><span class="badge badge-warn">${esc(s.status)}</span></div>`).join('');
+  }
+
+  /* ---------------- Reports ---------------- */
+  function reportRows() {
+    const idx = state.metric === 'Hours' ? 1 : 2;
+    return REPORT[state.group].map((r) => ({ label: r[0], value: r[idx] }));
+  }
+
+  function renderReport() {
+    $('#group-chips').innerHTML = Object.keys(REPORT).map((g) =>
+      `<button class="pill" data-group="${g}" aria-pressed="${state.group === g}">${g}</button>`).join('');
+    $('#metric-chips').innerHTML = ['Hours', 'Volunteers'].map((m) =>
+      `<button class="pill" data-metric="${m}" aria-pressed="${state.metric === m}">${m}</button>`).join('');
+
+    const rows = reportRows();
+    const max = Math.max(...rows.map((r) => r.value));
+    $('#chart-title').textContent = (state.metric === 'Hours' ? 'Service hours' : 'Distinct volunteers') + ' by ' + state.group.toLowerCase();
+    $('#chart').innerHTML = rows.map((r) => `
+      <div class="chart-row">
+        <span style="font-size: 14px">${esc(r.label)}</span>
+        <div class="chart-track"><div class="chart-fill" style="width: ${Math.round(r.value / max * 100)}%"></div></div>
+        <span class="num-col" style="font-size: 14px">${r.value}</span>
+      </div>`).join('');
+    const top = rows.slice().sort((a, b) => b.value - a.value)[0];
+    const total = rows.reduce((t, r) => t + r.value, 0);
+    $('#insight').textContent = top.label + ' leads with ' + top.value + (state.metric === 'Hours' ? ' hours' : ' volunteers') +
+      ' — ' + Math.round(top.value / total * 100) + '% of the total.';
+  }
+
+  function exportCsv() {
+    const rows = reportRows();
+    const lines = [[state.group, state.metric]].concat(rows.map((r) => [r.label, r.value]))
+      .map((cols) => cols.map((c) => '"' + String(c).replace(/"/g, '""') + '"').join(','));
+    const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'report-' + state.metric.toLowerCase() + '-by-' + state.group.toLowerCase() + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+
+  /* ---------------- Help ---------------- */
+  function renderFaq() {
+    const q = $('#ask').value.trim().toLowerCase();
+    const words = q.split(/\s+/).filter((w) => w.length > 2);
+    const list = FAQ.map((f, i) => ({ q: f[0], a: f[1], i }))
+      .filter((f) => !words.length || words.some((w) => (f.q + ' ' + f.a).toLowerCase().includes(w)));
+    $('#faqs').innerHTML = list.length ? list.map((f, n) => {
+      const open = q ? n === 0 : state.openFaq === f.i;
+      return `
+        <div class="card faq">
+          <button data-faq="${f.i}" aria-expanded="${open}">${esc(f.q)}</button>
+          ${open ? `<p>${esc(f.a)}</p>` : ''}
+        </div>`;
+    }).join('') : '<p class="hint">No matching answers. Try different words, or ask a coordinator.</p>';
+  }
+
+  /* ---------------- Wire up events ---------------- */
+  $('#tab-signup').addEventListener('click', () => setMode('signup'));
+  $('#tab-login').addEventListener('click', () => setMode('login'));
+  $('#auth-form').addEventListener('submit', handleAuth);
+  $('#logout').addEventListener('click', logout);
+  $$('.nav-btn').forEach((b) => b.addEventListener('click', () => setTab(b.dataset.tab)));
+  $('#log-form').addEventListener('submit', handleLog);
+  $('#vsearch').addEventListener('input', renderVolunteers);
+  $('#ask').addEventListener('input', renderFaq);
+  $('#export-csv').addEventListener('click', exportCsv);
+  $('#print-report').addEventListener('click', () => window.print());
+
+  // One click handler for all dynamically rendered buttons.
+  document.addEventListener('click', (e) => {
+    const t = e.target.closest('button');
+    if (!t) return;
+    if (t.dataset.join) toggleJoin(t.dataset.join);
+    else if (t.dataset.show) showOnMap(t.dataset.show, !t.classList.contains('pin'));
+    else if (t.dataset.skill) { state.skill = t.dataset.skill; renderVolunteers(); }
+    else if (t.dataset.group) { state.group = t.dataset.group; renderReport(); }
+    else if (t.dataset.metric) { state.metric = t.dataset.metric; renderReport(); }
+    else if (t.dataset.faq !== undefined) {
+      const i = Number(t.dataset.faq);
+      state.openFaq = state.openFaq === i ? -1 : i;
+      $('#ask').value = '';
+      renderFaq();
+    }
+  });
+
+  /* ---------------- Start ---------------- */
+  setMode('signup');
+  if (state.user) enterApp();
+})();
+</script>
+</body>
+</html>
